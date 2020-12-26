@@ -100,7 +100,12 @@ void HyperionMainDriver::load_mesh()
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // TODO : write code here
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   auto points = vtkSmartPointer<vtkPoints>::New();
+
+  std::cout << "taille des noeuds" << nodes.size() << endl;
+
+
   for (int n = 0; n< nodes.size();++n){
   points->InsertPoint(nodes[n-1],coords[n * 3 + 0], coords[n * 3 + 1],coords[n * 3 + 2]);
   }
@@ -113,7 +118,8 @@ void HyperionMainDriver::load_mesh()
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-  vtkSmartPointer<vtkUnstructuredGrid> ugrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  m_mesh = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  m_mesh->SetPoints(points);
   // Create a VTK unstructured grid
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // TODO : write code here
@@ -131,7 +137,9 @@ void HyperionMainDriver::load_mesh()
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // TODO : write code here
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ugrid->Allocate(nb_cells_to_allocate);
+  std::cout << "Le nombre de cell alloué " << nb_cells_to_allocate << "\n";
+
+  m_mesh->Allocate(nb_cells_to_allocate);
   // Get global cells and nodes
   nodes.clear();
   std::vector<std::size_t> cells;
@@ -141,13 +149,21 @@ void HyperionMainDriver::load_mesh()
     m_msh_vtk_cells[cells[c]] = c;
     m_vtk_msh_cells[c] = cells[c];
 
+    vtkIdType testPoint[4] = {
+      nodes[c*4],
+      nodes[c*4+1],
+      nodes[c*4+2],
+      nodes[c*4+3]
+    };
 
-    //ugrid->InsertNextCell(VTK_QUAD, cells[c].GetId());
+    m_mesh->InsertNextCell(VTK_QUAD, 4,testPoint);
+
     // Insert connectivites, i.e. nodes connected to a cell
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // Write code here
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   }
+
 
   gmsh::finalize();
 
@@ -159,8 +175,10 @@ void HyperionMainDriver::load_mesh()
 
 int HyperionMainDriver::run()
 {
+
   auto vars = new HydroVars(m_mesh->GetNumberOfCells(),
                             m_mesh->GetNumberOfPoints());
+  std::cout << "Laaaaaa\n";
   vars->setup_sod(m_dataset, m_cell_envs, m_vtk_msh_cells);
 
   auto hydro = new Hydro(m_dataset, m_mesh, vars);

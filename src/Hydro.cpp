@@ -32,10 +32,19 @@ void add_cell_field(vtkSmartPointer<vtkUnstructuredGrid> mesh,
                     const std::vector<double>& field,
                     const std::string& field_name)
 {
+
+
+
   // Create a VTK double array, insert values and attach it to the mesh
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // TODO : write code here
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  vtkSmartPointer<vtkDoubleArray> array = vtkDoubleArray::New();
+  for(int i = 0;i < field.size();i++){
+    array->InsertNextValue(field[i]);
+  }
+  mesh->GetPointData()->SetVectors(array);
+
 }
 
 //----------------------------------------------------------------------------
@@ -45,6 +54,11 @@ void add_node_field(vtkSmartPointer<vtkUnstructuredGrid> mesh,
                     const std::vector<double>& field,
                     const std::string& field_name)
 {
+  vtkSmartPointer<vtkDoubleArray> array = vtkDoubleArray::New();
+  for(int i = 0;i < field.size();i++){
+    array->InsertNextValue(field[i]);
+  }
+  mesh->GetPointData()->SetVectors(array);
   // Create a VTK double array, insert values and attach it to the mesh
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // TODO : write code here
@@ -58,6 +72,15 @@ void add_vector_node_field(vtkSmartPointer<vtkUnstructuredGrid> mesh,
                            const std::vector<std::pair<double, double>>& field,
                            const std::string& field_name)
 {
+
+vtkSmartPointer<vtkDoubleArray> array = vtkDoubleArray::New();
+  for(int i = 0;i < field.size();i++){
+    array->InsertNextValue(field[i].first);
+    array->InsertNextValue(field[i].second);
+  }
+  mesh->GetPointData()->SetVectors(array);
+
+
   // Create a VTK double array, insert values and attach it to the mesh
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // TODO : write code here
@@ -89,6 +112,11 @@ void Hydro::init()
   // Load initial node coordinates
   for (int n = 0; n < m_vars->m_nb_nodes; ++n) {
     double coord[3];
+    coord[0] = m_dataset[0 + n * 3];
+    coord[1] = m_dataset[1 + n * 3];
+    coord[2] = m_dataset[2 + n * 3];
+
+    m_vars->m_node_coord[n] = coord;
 
     // Get node n coordinates and save them to m_vars->m_node_coord
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
