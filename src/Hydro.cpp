@@ -45,7 +45,7 @@ void add_cell_field(vtkSmartPointer<vtkUnstructuredGrid> mesh,
   for(int i = 0;i < field.size();i++){
     array->InsertNextValue(field[i]);
   }
-  mesh->GetPointData()->AddArray(array);
+  mesh->GetFieldData()->AddArray(array);
 
 }
 
@@ -62,7 +62,7 @@ void add_node_field(vtkSmartPointer<vtkUnstructuredGrid> mesh,
   for(int i = 0;i < field.size();i++){
     array->InsertNextValue(field[i]);
   }
-  mesh->GetPointData()->AddArray(array);
+  mesh->GetFieldData()->AddArray(array);
   // Create a VTK double array, insert values and attach it to the mesh
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // TODO : write code here
@@ -78,12 +78,13 @@ void add_vector_node_field(vtkSmartPointer<vtkUnstructuredGrid> mesh,
 {
 
 vtkSmartPointer<vtkDoubleArray> array = vtkDoubleArray::New();
+array->SetName(field_name.c_str());
 array->SetNumberOfComponents(2);
   for(int i = 0;i < field.size();i++){
     array->InsertNextTuple2(field[i].first,field[i].second);
     //array->InsertNextValue();
   }
-  mesh->GetPointData()->AddArray(array);
+  mesh->GetFieldData()->AddArray(array);
 
 
   // Create a VTK double array, insert values and attach it to the mesh
@@ -402,6 +403,14 @@ void Hydro::dump(int step, double simulation_time)
   // Attach the simulation time to the mesh
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // TODO : write code here
+
+  vtkSmartPointer<vtkDoubleArray> array = vtkDoubleArray::New();
+  array->SetName("Time");
+  array->SetNumberOfComponents(1);
+
+    array->InsertNextValue(simulation_time);
+
+  m_mesh->GetFieldData()->AddArray(array);
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   add_cell_field(m_mesh, m_vars->m_pressure, "Pressure");
@@ -416,7 +425,6 @@ void Hydro::dump(int step, double simulation_time)
   add_vector_node_field(m_mesh, m_vars->m_force, "NodeForce");
 
   std::string file_name = "HydroLag." + std::to_string(step) + ".vtu";
-
 
   m_writer->SetFileName(file_name.c_str());
   m_writer->SetInputData(m_mesh);
