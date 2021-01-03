@@ -41,10 +41,11 @@ void add_cell_field(vtkSmartPointer<vtkUnstructuredGrid> mesh,
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   vtkSmartPointer<vtkDoubleArray> array = vtkDoubleArray::New();
   array->SetName(field_name.c_str());
+  array->SetNumberOfComponents(1);
   for(int i = 0;i < field.size();i++){
     array->InsertNextValue(field[i]);
   }
-  mesh->GetPointData()->SetVectors(array);
+  mesh->GetPointData()->AddArray(array);
 
 }
 
@@ -57,10 +58,11 @@ void add_node_field(vtkSmartPointer<vtkUnstructuredGrid> mesh,
 {
   vtkSmartPointer<vtkDoubleArray> array = vtkDoubleArray::New();
   array->SetName(field_name.c_str());
+  array->SetNumberOfComponents(1);
   for(int i = 0;i < field.size();i++){
     array->InsertNextValue(field[i]);
   }
-  mesh->GetPointData()->SetVectors(array);
+  mesh->GetPointData()->AddArray(array);
   // Create a VTK double array, insert values and attach it to the mesh
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // TODO : write code here
@@ -76,6 +78,7 @@ void add_vector_node_field(vtkSmartPointer<vtkUnstructuredGrid> mesh,
 {
 
 vtkSmartPointer<vtkDoubleArray> array = vtkDoubleArray::New();
+array->SetNumberOfComponents(2);
   for(int i = 0;i < field.size();i++){
     array->InsertNextTuple2(field[i].first,field[i].second);
     //array->InsertNextValue();
